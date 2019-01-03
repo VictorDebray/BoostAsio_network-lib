@@ -1,0 +1,15 @@
+//
+// Created by Victor Debray on 2018-12-27.
+//
+
+syntax = "proto3";
+
+message Request {
+    string client_id = 1;
+    string command = 2;
+}
+
+message Response {
+    string value = 1;
+}
+

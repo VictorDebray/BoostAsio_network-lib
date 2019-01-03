@@ -1,3 +1,20 @@
+# Created by .ignore support plugin (hsz.mobi)
+### CMake template
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+cmake-build-debug
+
+### C++ template
+# Prerequisites
+*.d
+
 # Compiled Object files
 *.slo
 *.lo
@@ -15,6 +32,7 @@
 
 # Fortran module files
 *.mod
+*.smod
 
 # Compiled Static libraries
 *.lai
@@ -26,3 +44,13 @@
 *.exe
 *.out
 *.app
+
+.idea
+*.cbp
+bin
+*.pb.cc
+*.pb.h
+
+Server/server
+
+Client/client
