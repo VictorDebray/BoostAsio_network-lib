@@ -6,7 +6,6 @@
 #include "Server.hpp"
 #include "PacketLogger.hpp"
 
-// Server class that handles network and data queues
 Server::Server(uint16_t port) noexcept :
     network_(std::make_shared<ServerNetwork>("0.0.0.0", port, receivedQueue_, commandQueue_)),
     receiveStrand_(*network_->getIoService()),

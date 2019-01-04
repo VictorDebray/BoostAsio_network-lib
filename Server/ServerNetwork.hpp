@@ -13,33 +13,68 @@
 # include "Accept.hpp"
 # include "ClientConnection.hpp"
 
+/**
+ * Class that handles clients and RawBuffer queues
+ */
 class ServerNetwork {
  private:
   Sptr<::myboost::asio::Accept> acceptor_;
   std::set<Sptr<ClientConnection>> clients_;
-  ReceivedQueue& receivedQueue_;
-  CommandQueue& commandQueue_;
+  ReceivedQueue &receivedQueue_;
+  CommandQueue &commandQueue_;
   boost::asio::io_service::strand receiveStrand_;
   boost::asio::io_service::strand commandStrand_;
 
  public:
+  /**
+   * Server network constructor
+   * @param addr server address
+   * @param port listening port
+   * @param rec received RawBuffer
+   * @param com command queues to send
+   */
   ServerNetwork(const std::string &addr,
-                  uint16_t port,
-                  ReceivedQueue &rec,
-                  CommandQueue &com);
+                uint16_t port,
+                ReceivedQueue &rec,
+                CommandQueue &com);
   ~ServerNetwork() = default;
 
  public:
+  /**
+   * Start server
+   */
   void run();
+
+  /**
+   * Stop accepting
+   */
   void stop();
-  void addConnection(const Sptr<ClientConnection> &spider);
-  void removeConnection(const Sptr<ClientConnection> &spider);
+
+  /**
+   * Add client to list
+   * @param connection
+   */
+  void addConnection(const Sptr<ClientConnection> &connection);
+
+  /**
+  * Add client to list
+  * @param connection
+  */
+  void removeConnection(const Sptr<ClientConnection> &connection);
+
   Sptr<boost::asio::io_service> getIoService() const;
   boost::asio::io_service::strand &getReceiveStrand();
   boost::asio::io_service::strand &getCommandStrand();
 
  private:
+  /**
+  * Start accepting new clients asynchronously
+  */
   void startAccept();
+  /**
+   * On accept callback, add client to list and connect
+   * @param newSock new connection just accepted
+   */
   void acceptHandler(Sptr<::myboost::asio::Connection> newSock);
 };
 

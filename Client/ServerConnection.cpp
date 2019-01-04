@@ -64,14 +64,14 @@ bool ServerConnection::isLive() const {
 void ServerConnection::startPacketSend() {
   ioService_->post(sendingQueueStrand_.wrap([me = shared_from_this()]() {
     if (!me->sendingQueue_.getData().empty()) {
-      me->send();
+      me->handleWritePacket();
     } else {
       me->startPacketSend();
     }
   }));
 }
 
-void ServerConnection::send() {
+void ServerConnection::handleWritePacket() {
   if (!connection_.isConnected()) {
     std::cerr << "Send: Can't connect to server socket." << std::endl;
     return;
@@ -79,26 +79,18 @@ void ServerConnection::send() {
   Sptr<RawBuffer> buff = sendingQueue_.cgetFront();
   connection_.async_write(*buff, sendingQueueStrand_.wrap(
       [me = shared_from_this()](std::size_t) {
-        me->sendHandler();
+        me->sendingQueue_.pop();
+        me->receive();
       }));
-}
-
-void ServerConnection::sendHandler() {
-  if (!connection_.isConnected()) {
-    std::cerr << "Send: Can't connect to server socket." << std::endl;
-  }
-
-  sendingQueue_.pop();
-  startPacketSend();
 }
 
 void ServerConnection::receive() {
   connection_.async_read(*readBuff_, HEADER_SIZE, [me = shared_from_this()](size_t csize) {
     if (csize <= 0) {
-      me->send();
+      me->handleWritePacket();
       return;
     }
-    auto packetSize = Header::deserialize_header(*me->readBuff_);
+    auto packetSize = Header::decode(*me->readBuff_);
     me->handleReadBody(packetSize);
   });
 }

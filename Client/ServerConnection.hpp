@@ -14,6 +14,9 @@
 # include "Queue.hpp"
 # include "Connection.hpp"
 
+/**
+ * Class that handles the server connection
+ */
 class ServerConnection : public std::enable_shared_from_this<ServerConnection> {
  private:
   using tcp = boost::asio::ip::tcp;
@@ -23,28 +26,70 @@ class ServerConnection : public std::enable_shared_from_this<ServerConnection> {
   Sptr<boost::asio::io_service> ioService_;
   boost::asio::io_service::strand sendingQueueStrand_;
   boost::asio::io_service::strand receivedQueueStrand_;
-  SendingQueue& sendingQueue_;
-  ReceivedQueue& receivedQueue_;
+  SendingQueue &sendingQueue_;
+  ReceivedQueue &receivedQueue_;
   myboost::asio::Connection connection_;
   Sptr<RawBuffer> readBuff_;
 
+  /**
+   * Connect to server
+   * @return success value
+   */
   int connect();
-  void send();
-  void sendHandler();
-  void startPacketSend();
+
+  /**
+   * Start async read
+   * - Reads HEADER_SIZE bytes to get body length
+   * - Reads packet size body
+   */
   void receive();
+
+  /**
+   * Checks if sending queue is not empty and starts write
+   */
+  void startPacketSend();
+
+  /**
+   * Read rest of message
+   * @param packetSize size of body to read
+   */
   void handleReadBody(size_t packetSize);
+
+  /**
+   * Saves read RawBuffer to received queue
+   */
   void handleSaveBody();
 
+  /**
+   * Async writes message RawBuffer to client
+   */
+  void handleWritePacket();
+
  public:
+  /**
+   * ServerConnection constructor
+   * @param ip address to server
+   * @param port port number to server
+   * @param sendingQueue data to be sent to server
+   * @param receivedQueue data received from network
+   */
   ServerConnection(const std::string &ip,
                    const std::string &port,
-                   SendingQueue& sendingQueue,
-                   ReceivedQueue& receivedQueue);
+                   SendingQueue &sendingQueue,
+                   ReceivedQueue &receivedQueue);
   ~ServerConnection();
 
+  /**
+   * Connect to server
+   * @return success value
+   */
   int start();
+
+  /**
+   * Run server communication
+   */
   void run();
+
   bool isLive() const;
 };
 

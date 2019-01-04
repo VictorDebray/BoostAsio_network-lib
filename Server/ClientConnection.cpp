@@ -21,7 +21,6 @@ ClientConnection::ClientConnection(Sptr<::myboost::asio::Connection> sock,
 
 void ClientConnection::connect() {
   std::weak_ptr<ClientConnection> self(shared_from_this());
-  std::shared_ptr<ClientConnection> nwself(shared_from_this());
   socket_->setErrorCallback(std::bind([this](std::weak_ptr<ClientConnection> lself) {
     if (auto sself = lself.lock()) {
       network_.removeConnection(sself);
@@ -36,13 +35,13 @@ void ClientConnection::startRead() {
       me->startWrite();
       return;
     }
-    auto packetSize = Header::deserialize_header(*me->readBuff_);
+    auto packetSize = Header::decode(*me->readBuff_);
     me->handleReadBody(packetSize);
   });
 }
 
-void ClientConnection::handleReadBody(size_t packet_size) {
-  socket_->async_read(*readBuff_, HEADER_SIZE, packet_size, [me = shared_from_this()](size_t /*csize*/) {
+void ClientConnection::handleReadBody(size_t packetSize) {
+  socket_->async_read(*readBuff_, HEADER_SIZE, packetSize, [me = shared_from_this()](size_t /*csize*/) {
     me->handleSaveBody();
   });
 }
@@ -74,6 +73,7 @@ void ClientConnection::handleWritePacket() {
   socket_->async_write(*write, [me = shared_from_this()](size_t writeSize) {
     if (writeSize <= 0)
       return;
+    me->commandQueue_.pop();
     me->startRead();
   });
 }

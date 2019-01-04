@@ -27,13 +27,29 @@ class Client {
   std::thread threadPacketLog_;
   std::thread threadConsole_;
 
+  /**
+   * Run packet factory
+   */
   void startPacketFactory();
+
+  /**
+   * Start logging incoming packet (messages)
+   */
   void startPacketLog();
+
+  /**
+   * Run console
+   */
   void startConsole();
 
  public:
-  Client() = delete;
+  /**
+   * Client constructor
+   * @param ip address of server
+   * @param port port number
+   */
   Client(const std::string &ip, const std::string& port);
+  Client() = delete;
   ~Client();
 };
 

@@ -9,15 +9,17 @@
 #include <vector>
 #include <functional>
 
-enum Type_e {
-  STRING
-};
-
+/**
+ * Size of header preceding packet message in RawBuffer
+ */
 const size_t HEADER_SIZE = 4;
 
 template <class T>
 using Sptr = std::shared_ptr<T>;
 
+/**
+ * RawBuffer typedef
+ */
 typedef std::vector<uint8_t> RawBuffer;
 
 using t_readHandler = std::function<void(size_t)>;

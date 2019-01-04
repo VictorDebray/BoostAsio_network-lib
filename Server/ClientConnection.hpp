@@ -16,6 +16,9 @@
 
 class ServerNetwork;
 
+/**
+ *  Class that handles a client connection
+ */
 class ClientConnection : public std::enable_shared_from_this<ClientConnection> {
  private:
   Sptr<RawBuffer> readBuff_;
@@ -25,6 +28,13 @@ class ClientConnection : public std::enable_shared_from_this<ClientConnection> {
   CommandQueue &commandQueue_;
 
  public:
+  /**
+   * Client connection constructor
+   * @param sock ASIO socket wrapper
+   * @param net network class
+   * @param queue received raw buffer data queue
+   * @param com commands queue to send
+   */
   ClientConnection(Sptr<::myboost::asio::Connection> sock,
                    ServerNetwork &net,
                    ReceivedQueue &queue,
@@ -35,15 +45,38 @@ class ClientConnection : public std::enable_shared_from_this<ClientConnection> {
   ClientConnection &operator=(const ClientConnection &other) = delete;
 
  public:
+
+  /**
+   * Sets error callback and starts read and write
+   */
   void connect();
 
+  /**
+   * Start async read
+   * - Reads HEADER_SIZE bytes to get body length
+   * - Reads packet size body
+   */
   void startRead();
 
+  /**
+   * Checks if sending queue is not empty and starts write
+   */
   void startWrite();
 
-  void handleReadBody(size_t packet_size);
+  /**
+   * Read rest of message
+   * @param packetSize size of body to read
+   */
+  void handleReadBody(size_t packetSize);
+
+  /**
+   * Saves read RawBuffer to received queue
+   */
   void handleSaveBody();
 
+  /**
+   * Async writes message RawBuffer to client
+   */
   void handleWritePacket();
 
 };

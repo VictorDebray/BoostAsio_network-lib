@@ -8,6 +8,12 @@
 #include "UsingClass.hpp"
 
 namespace PacketLogger {
+/**
+ * Show hex values of binary data
+ * @tparam CharContainer buffer type
+ * @param c buffer
+ * @return ouput string
+ */
 template<class CharContainer>
 std::string show_hex(const CharContainer &c) {
   std::string hex;
